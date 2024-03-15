@@ -1,8 +1,41 @@
 borg_check_name() {
   name="$1"
-  if [ -z "$name" ]; then
-    echo "[BORG] Backup name is required"
-    exit 1
+  
+  # if the second argument is given, it will create a new backup
+  # else it will search for the latest
+  local create="$2"
+
+  # if "$1" is empty, "$name" will contain the value of "$create"
+  # so we need to swap the values
+  if [ -z "$create" ]; then
+    create="$name"
+
+    # promping user to use the latest backup
+    read -p "[BORG] Use latest backup?(y/n): " use_latest
+    case "$use_latest" in
+    [yY][eE][sS]|[yY]) 
+        echo "using latest backup"
+        name="latest"
+        ;;
+    *)
+        echo "exiting"
+        exit 1
+        ;;
+    esac
+  fi
+
+  echo "name: "$name", create: "$2
+
+  # if the name is "latest" (NOT case-sensitive), find/create the latest backup
+  if [ "${name,,}" == "latest" ]; then
+    # if the second argument is given
+    if $create; then
+      # we will set the name to the current date and time
+      name=$(date +"%Y-%m-%d_%H-%M-%S")
+    else
+      # else we will search for the latest
+      name=$(borg list --sort-by timestamp :: | sort -r | head -n 1|  awk '{print $1}')
+    fi
   fi
 }
 
@@ -29,8 +62,7 @@ borg_list() {
 }
 
 borg_backup() {
-  borg_check_name "$1"
-  # TODO allow "LATEST" and auto name the image
+  borg_check_name "$1" true
 
   echo "[BORG] Backup current data..."
   sudo -E borg create --stats --progress --compression zlib "::$name" ./volumes
@@ -38,8 +70,7 @@ borg_backup() {
 }
 
 borg_restore() {
-  borg_check_name "$1"
-  # TODO allow "LATEST" and load the latest backup
+  borg_check_name "$1" false
 
   echo "[BORG] Restore data from backup..."
   sudo -E borg extract --progress "::$name"
