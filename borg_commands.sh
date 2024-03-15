@@ -33,7 +33,7 @@ borg_backup() {
   # TODO allow "LATEST" and auto name the image
 
   echo "[BORG] Backup current data..."
-  borg create --stats --progress --compression zlib "::$name" ./volumes
+  sudo -E borg create --stats --progress --compression zlib "::$name" ./volumes
   echo "[BORG] Backup finished"
 }
 
@@ -42,7 +42,7 @@ borg_restore() {
   # TODO allow "LATEST" and load the latest backup
 
   echo "[BORG] Restore data from backup..."
-  borg extract --progress "::$name"
+  sudo -E borg extract --progress "::$name"
   echo "[BORG] Restore finished"
 }
 
