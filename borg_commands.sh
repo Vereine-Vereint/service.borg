@@ -1,5 +1,5 @@
 # $1: name of the backup
-# $2: if exists, generate default name
+# $2: if exists, automatically set default name
 #     "latest" find the latest backup name
 #     "generate" generate a new backup name
 borg_check_name() {
@@ -54,22 +54,23 @@ borg_init() {
   fi
 
   echo "[BORG] Creating remote repository"
-  borg init --encryption=repokey-blake2 --make-parent-dirs >/dev/null
+  sudo -E borg init --encryption=repokey-blake2 --make-parent-dirs >/dev/null
   echo "[BORG] Repository created"
 }
 
 borg_info() {
   echo "[BORG] Repository information:"
-  borg info
+  sudo -E borg info
 }
 
 borg_list() {
   echo "[BORG] List of backups:"
-  borg list
+  sudo -E borg list
 }
 
 borg_backup() {
-  borg_check_name "$1" "generate"
+  # borg_check_name "$1" "generate"
+  name=$1
 
   echo "[BORG] Backup current data..."
   sudo -E borg create --stats --progress --compression zlib "::$name" ./volumes
@@ -80,6 +81,7 @@ borg_restore() {
   borg_check_name "$1" "latest"
 
   echo "[BORG] Restore data from backup..."
+  BORG_RSH="$(echo $BORG_RSH | sed "s/~/\/home\/$USER/g")"
   sudo -E borg extract --progress "::$name"
   echo "[BORG] Restore finished"
 }
@@ -98,7 +100,7 @@ borg_export() {
   fi
 
   echo "[BORG] Export backup to a .tar file..."
-  borg export-tar --progress "::$name" $file
+  sudo -E borg export-tar --progress "::$name" $file
   echo "[BORG] Export finished"
 }
 
@@ -106,19 +108,19 @@ borg_delete() {
   borg_check_name "$1"
 
   echo "[BORG] Delete backup..."
-  borg delete  --progress "::$name"
+  sudo -E borg delete  --progress "::$name"
   echo "[BORG] Backup deleted"
 }
 
 borg_compact() {
   echo "[BORG] Compact the repository..."
-  borg compact --progress
+  sudo -E borg compact --progress
   echo "[BORG] Repository compacted"
 }
 
 borg_prune() {
   echo "[BORG] Prune old backups..."
-  borg prune --progress --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3 # todo keep last hours
+  sudo -E borg prune --progress --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3 # todo keep last hours
   echo "[BORG] Old backups pruned"
 }
 
@@ -127,6 +129,6 @@ borg_break-lock() {
   echo "[BORG] Waiting 5 seconds before breaking the lock"
   echo "[BORG] ONLY USE THIS COMMAND IF YOU KNOW WHAT YOU ARE DOING"
   sleep 5
-  borg break-lock
+  sudo -E borg break-lock
   echo "[BORG] Repository lock freed"
 }

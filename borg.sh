@@ -34,6 +34,8 @@ cmd_borg() {
 
   borg_check
 
+  BORG_RSH="$(echo $BORG_RSH | sed "s/~/\/home\/$USER/g")"
+
   cd $SERVICE_DIR
   shift # remove first argument ("borg" command)
   borg_$command "$@"
