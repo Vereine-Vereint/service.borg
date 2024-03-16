@@ -1,5 +1,12 @@
+# $1: name of the backup
+# $2: if exists, generate default name
+#     "latest" find the latest backup name
+#     "generate" generate a new backup name
 borg_check_name() {
+  echo "1: $1, 2: $2"
+
   name="$1"
+
   
   # if the second argument is given, it will create a new backup
   # else it will search for the latest
@@ -11,9 +18,9 @@ borg_check_name() {
     create="$name"
 
     # promping user to use the latest backup
-    read -p "[BORG] Use latest backup?(y/n): " use_latest
+    read -p "[BORG] Use latest backup?(y/N): " use_latest
     case "$use_latest" in
-    [yY][eE][sS]|[yY]) 
+    [yY][eE][sS]|[yY])
         echo "using latest backup"
         name="latest"
         ;;
@@ -62,7 +69,7 @@ borg_list() {
 }
 
 borg_backup() {
-  borg_check_name "$1" true
+  borg_check_name "$1" "generate"
 
   echo "[BORG] Backup current data..."
   sudo -E borg create --stats --progress --compression zlib "::$name" ./volumes
@@ -70,7 +77,7 @@ borg_backup() {
 }
 
 borg_restore() {
-  borg_check_name "$1" false
+  borg_check_name "$1" "latest"
 
   echo "[BORG] Restore data from backup..."
   sudo -E borg extract --progress "::$name"
@@ -78,7 +85,7 @@ borg_restore() {
 }
 
 borg_export() {
-  borg_check_name "$1"
+  borg_check_name "$1" "latest"
   local file="$2"
 
   if [ -z "$file" ]; then
