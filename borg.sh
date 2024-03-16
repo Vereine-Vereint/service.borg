@@ -10,7 +10,7 @@ declare -A borg_commands=(
 
   [backup]="<name>:Backup current data"
   [restore]="<name>:Restore data from backup"
-  [export]="<name> <file>:Export backup to a .tar file"
+  [export]="<file> <name>:Export backup to a .tar file"
   [delete]="<name>:Delete backup"
 
   [compact]=":Compact the repository"
@@ -33,6 +33,8 @@ cmd_borg() {
   fi
 
   borg_check
+
+  BORG_RSH="$(echo $BORG_RSH | sed "s/~/\/home\/$USER/g")"
 
   cd $SERVICE_DIR
   shift # remove first argument ("borg" command)
