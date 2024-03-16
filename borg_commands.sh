@@ -3,14 +3,13 @@
 #     "latest" find the latest backup name
 #     "generate" generate a new backup name
 borg_check_name() {
-  echo "1: $1, 2: $2"
 
   name="$1"
 
   # if "$2" is empty, "$name" will MUST be given
   if [ -z "$2" ]; then
     if [ -z "$name" ]; then
-      echo "name is required"
+      echo "[BORG] name is required"
       exit 1
     fi
   else
@@ -20,11 +19,10 @@ borg_check_name() {
       read -p "[BORG] Use latest backup?(y/N): " use_latest
       case "$use_latest" in
       [yY][eE][sS]|[yY])
-          echo "using latest backup"
           name="latest"
           ;;
       *)
-          echo "exiting"
+          echo "       exiting"
           exit 1
           ;;
       esac
@@ -38,11 +36,11 @@ borg_check_name() {
         name=$(date +"%Y-%m-%d_%H-%M-%S")
       else
         # else we will search for the latest
-        name=$(borg list --sort-by timestamp :: | sort -r | head -n 1|  awk '{print $1}')
+        name=$(sudo -E borg list --sort-by timestamp | tail -n 1 | awk '{print $1}')
       fi
 
         # a bit of logging
-        echo "using backup: $name"
+        echo "[BORG] using backup: $name"
     fi
   fi
 }
@@ -70,8 +68,7 @@ borg_list() {
 }
 
 borg_backup() {
-  # borg_check_name "$1" "generate"
-  name=$1
+  borg_check_name "$1" "generate"
 
   echo "[BORG] Backup current data..."
   sudo -E borg create --stats --progress --compression zlib "::$name" ./volumes
@@ -88,8 +85,8 @@ borg_restore() {
 }
 
 borg_export() {
-  borg_check_name "$1" "latest"
-  local file="$2"
+  local file="$1"
+  borg_check_name "$2" "latest"
 
   if [ -z "$file" ]; then
     echo "[BORG] File name is required"
