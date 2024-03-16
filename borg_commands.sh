@@ -7,41 +7,42 @@ borg_check_name() {
 
   name="$1"
 
-  
-  # if the second argument is given, it will create a new backup
-  # else it will search for the latest
-  local create="$2"
+  # if "$2" is empty, "$name" will MUST be given
+  if [ -z "$2" ]; then
+    if [ -z "$name" ]; then
+      echo "name is required"
+      exit 1
+    fi
+  else
+    # if name is NOT given, prompt user to use latest backup
+    if [ -z "$name" ]; then
+      # promping user to use the latest backup
+      read -p "[BORG] Use latest backup?(y/N): " use_latest
+      case "$use_latest" in
+      [yY][eE][sS]|[yY])
+          echo "using latest backup"
+          name="latest"
+          ;;
+      *)
+          echo "exiting"
+          exit 1
+          ;;
+      esac
+    fi
 
-  # if "$1" is empty, "$name" will contain the value of "$create"
-  # so we need to swap the values
-  if [ -z "$create" ]; then
-    create="$name"
+    # if the name is "latest" (NOT case-sensitive), find/create the latest backup
+    if [ "${name,,}" == "latest" ] || [ "${name,,}" == "auto" ]; then
 
-    # promping user to use the latest backup
-    read -p "[BORG] Use latest backup?(y/N): " use_latest
-    case "$use_latest" in
-    [yY][eE][sS]|[yY])
-        echo "using latest backup"
-        name="latest"
-        ;;
-    *)
-        echo "exiting"
-        exit 1
-        ;;
-    esac
-  fi
+      # if the second argument is "generate", we will set the name to the current date and time
+      if [ "$2" == "generate" ]; then
+        name=$(date +"%Y-%m-%d_%H-%M-%S")
+      else
+        # else we will search for the latest
+        name=$(borg list --sort-by timestamp :: | sort -r | head -n 1|  awk '{print $1}')
+      fi
 
-  echo "name: "$name", create: "$2
-
-  # if the name is "latest" (NOT case-sensitive), find/create the latest backup
-  if [ "${name,,}" == "latest" ]; then
-    # if the second argument is given
-    if $create; then
-      # we will set the name to the current date and time
-      name=$(date +"%Y-%m-%d_%H-%M-%S")
-    else
-      # else we will search for the latest
-      name=$(borg list --sort-by timestamp :: | sort -r | head -n 1|  awk '{print $1}')
+        # a bit of logging
+        echo "using backup: $name"
     fi
   fi
 }
