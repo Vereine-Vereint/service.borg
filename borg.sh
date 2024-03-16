@@ -10,7 +10,7 @@ declare -A borg_commands=(
 
   [backup]="<name>:Backup current data"
   [restore]="<name>:Restore data from backup"
-  [export]="<name> <file>:Export backup to a .tar file"
+  [export]="<file> <name>:Export backup to a .tar file"
   [delete]="<name>:Delete backup"
 
   [compact]=":Compact the repository"
