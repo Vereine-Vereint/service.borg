@@ -80,7 +80,7 @@ borg_compact() {
 
 borg_prune() {
   echo "[BORG] Prune old backups..."
-  borg prune --keep-within 1d --progress --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3 # todo keep last hours
+  borg prune --progress --keep-within 1d --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3 # todo keep last hours
   echo "[BORG] Old backups pruned"
   # executing compact as well, as prune does not delete the data
   borg_compact
