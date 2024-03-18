@@ -1,4 +1,4 @@
-BORG_VERSION="v0.1"
+BORG_VERSION="v1.0"
 
 BORG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 echo "[BORG] $BORG_VERSION ($(cd $BORG_DIR && git rev-parse --short HEAD))"
