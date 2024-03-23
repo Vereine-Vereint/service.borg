@@ -16,7 +16,7 @@ declare -A borg_commands=(
   [compact]=":Compact the repository"
   [prune]=":Prune old backups"
 
-  [break-lock]=":Break the repository lock !USE WITH CAUTION!"
+  ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
 )
 
 commands+=([borg]=":Manage Backup and Restore operations")

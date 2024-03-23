@@ -1,3 +1,47 @@
+# helper function that gets called
+# when the name is not given
+# and determines which prompt to show
+# $1: the prompt mode (latest, generate)
+name_prompt() {
+  local mode="$1"
+
+  if [ "$mode" == "generate" ]; then
+    # prompt user to use the latest backup
+    # "generate" uses YES as default
+    printf "[BORG] Generate default backup name?(Y/n): "
+    read -n 1 -r
+    echo
+    case "$REPLY" in
+    [nN][oO] | [nN])
+      echo "       exiting"
+      exit 1
+      ;;
+    *)
+      name="latest"
+      ;;
+    esac
+  elif [ "$mode" == "latest" ]; then
+    # prompting user to use the latest backup
+    # "latest" uses NO as default
+    printf "[BORG] Use latest backup?(y/N): "
+    read -n 1 -r
+    echo
+    case "$REPLY" in
+    [yY][eE][sS] | [yY])
+      name="latest"
+      ;;
+    *)
+      echo "       exiting"
+      exit 1
+      ;;
+    esac
+  else
+    # just to avoid misuse of the function
+    echo "ILLEGAL: Call to function 'name_prompt' with mode: $mode"
+    exit 1
+  fi
+}
+
 # $1: name of the backup
 # $2: if exists, automatically set default name
 #     "latest" find the latest backup name
@@ -6,26 +50,16 @@ borg_check_name() {
 
   name="$1"
 
-  # if "$2" is empty, "$name" will MUST be given
+  # if "$2" is empty, "$name" MUST be given
   if [ -z "$2" ]; then
     if [ -z "$name" ]; then
       echo "[BORG] name is required"
       exit 1
     fi
   else
-    # if name is NOT given, prompt user to use latest backup
+    # if name is NOT given, call the prompt function
     if [ -z "$name" ]; then
-      # promping user to use the latest backup
-      read -p "[BORG] Use latest backup?(y/N): " use_latest
-      case "$use_latest" in
-      [yY][eE][sS]|[yY])
-          name="latest"
-          ;;
-      *)
-          echo "       exiting"
-          exit 1
-          ;;
-      esac
+      name_prompt "$2"
     fi
 
     # if the name is "latest" (NOT case-sensitive), find/create the latest backup
@@ -40,8 +74,8 @@ borg_check_name() {
         name=$(sudo -E borg list --sort-by timestamp | tail -n 1 | awk '{print $1}')
       fi
 
-        # a bit of logging
-        echo "[BORG] using backup: $name"
+      # a bit of logging
+      echo "[BORG] using backup: $name"
     fi
   fi
 }
@@ -107,7 +141,7 @@ borg_delete() {
   borg_check_name "$1"
 
   echo "[BORG] Delete backup..."
-  sudo -E borg delete  --progress "::$name"
+  sudo -E borg delete --progress "::$name"
   echo "[BORG] Backup deleted"
 }
 
