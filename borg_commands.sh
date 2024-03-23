@@ -31,9 +31,10 @@ borg_check_name() {
     # if the name is "latest" (NOT case-sensitive), find/create the latest backup
     if [ "${name,,}" == "latest" ] || [ "${name,,}" == "auto" ]; then
 
-      # if the second argument is "generate", we will set the name to the current date and time
+      # if the second argument is "generate", we will set the name
+      # to the hostname and current date and time
       if [ "$2" == "generate" ]; then
-        name=$(date +"%Y-%m-%d_%H-%M-%S")
+        name=${HOSTNAME}_$(date +"%Y-%m-%d_%H-%M-%S")
       else
         # else we will search for the latest
         name=$(sudo -E borg list --sort-by timestamp | tail -n 1 | awk '{print $1}')
