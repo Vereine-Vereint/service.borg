@@ -1,10 +1,11 @@
-BORG_VERSION="v1.0"
+BORG_VERSION="v1.1"
 
 BORG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 echo "[BORG] $BORG_VERSION ($(cd $BORG_DIR && git rev-parse --short HEAD))"
 
 declare -A borg_commands=(
   [init]=":Create remote repository"
+  [pwgen]=":Generate a random passphrase"
   [info]=":Show repository information"
   [list]=":Lists all backups"
 

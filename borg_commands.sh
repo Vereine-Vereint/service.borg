@@ -167,3 +167,8 @@ borg_break-lock() {
   sudo -E borg break-lock
   echo "[BORG] Repository lock freed"
 }
+
+borg_pwgen() {
+  echo "[BORG] Generating a new passphrase..."
+  echo "BORG_PASSPHRASE=$(pwgen -s 64 1)" >> "$ENV_FILE"
+}
