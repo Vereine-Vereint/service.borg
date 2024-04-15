@@ -170,5 +170,5 @@ borg_break-lock() {
 
 borg_pwgen() {
   echo "[BORG] Generating a new passphrase..."
-  echo "BORG_PASSPHRASE=$(pwgen -s 64 1)" >> "$ENV_FILE"
+  echo "BORG_PASSPHRASE=$(openssl rand -base64 48)" >> "../$ENV_FILE"
 }

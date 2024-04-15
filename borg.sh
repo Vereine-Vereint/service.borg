@@ -1,4 +1,4 @@
-BORG_VERSION="v1.1"
+BORG_VERSION="v1.2"
 
 BORG_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 echo "[BORG] $BORG_VERSION ($(cd $BORG_DIR && git rev-parse --short HEAD))"
@@ -57,19 +57,19 @@ borg_check() {
     fi
   fi
 
-  # Check if BORG_REPO, BORG_RSH and BORG_PASSPHRASE are set
+  # Check if BORG_REPO, BORG_PASSPHRASE are set
   if [ -z "$BORG_REPO" ]; then
     echo "[BORG] BORG_REPO is not set"
     exit 1
   fi
-  if [ -z "$BORG_RSH" ]; then
-    echo "[BORG] BORG_RSH is not set"
-    exit 1
-  fi
-  if [ -z "$BORG_PASSPHRASE" ]; then
-    echo "[BORG] BORG_PASSPHRASE is not set"
-    exit 1
-  fi
+  # if [ -z "$BORG_RSH" ]; then
+  #   echo "[BORG] BORG_RSH is not set"
+  #   exit 1
+  # fi
+  # if [ -z "$BORG_PASSPHRASE" ]; then
+  #   echo "[BORG] BORG_PASSPHRASE is not set"
+  #   exit 1
+  # fi
 }
 
 source "$BORG_DIR/borg_commands.sh"
