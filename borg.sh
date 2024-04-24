@@ -20,6 +20,10 @@ declare -A borg_commands=(
   ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
 )
 
+add_global_subcommand "borg" "restore"
+add_global_subcommand "borg" "backup"
+add_global_subcommand "borg" "prune"
+
 commands+=([borg]=":Manage Backup and Restore operations")
 cmd_borg() {
   local command="$1"
