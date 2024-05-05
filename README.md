@@ -26,3 +26,7 @@ Some commands accept "latest" or "auto" to use the newest backup, or create a ne
 - `prune`: Prune old backups. Doesn't touch backups made in the last 24 hours, and executes "borg compact" after.
 
 - `break-lock`: Break the repository lock. **USE WITH CAUTION!**
+
+- `activate`: Activates automatic hourly backups for this service.
+
+- `deactivate`: Deactivates automatic hourly backups for this service.

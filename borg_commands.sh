@@ -172,3 +172,15 @@ borg_pwgen() {
   echo "[BORG] Generating a new passphrase..."
   echo "BORG_PASSPHRASE=$(openssl rand -base64 48)" >> "../$ENV_FILE"
 }
+
+borg_activate() {
+  echo "[BORG] Activating automatic hourly backups for this service..."
+  (crontab -l ; echo "0 * * * * (~/services.connecta/$SERVICE_NAME/service.sh borg backup auto) 2>&1 | logger -t cron_$SERVICE_NAME") | crontab -
+  sudo tail -n +4 /var/spool/cron/crontabs/conny
+}
+
+borg_deactivate() {
+  echo "[BORG] Deactivating automatic hourly backups for this service..."
+  crontab -l | grep -v "$SERVICE_NAME/service.sh" | crontab -
+  sudo tail -n +4 /var/spool/cron/crontabs/conny
+}

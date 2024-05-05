@@ -18,6 +18,9 @@ declare -A borg_commands=(
   [prune]=":Prune old backups"
 
   ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
+  
+  ["activate"]=":Activates automatic hourly backups for this service"
+  ["deactivate"]=":Deactivates automatic hourly backups for this service"
 )
 
 add_global_subcommand "borg" "restore"
