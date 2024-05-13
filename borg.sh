@@ -19,6 +19,7 @@ declare -A borg_commands=(
 
   ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
   
+  ["autobackup"]=":Script that is running in the automatic backups"
   ["activate"]=":Activates automatic hourly backups for this service"
   ["deactivate"]=":Deactivates automatic hourly backups for this service"
 )
