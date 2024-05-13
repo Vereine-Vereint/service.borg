@@ -182,7 +182,7 @@ borg_pwgen() {
 
 borg_activate() {
   echo "[BORG] Activating automatic hourly backups for this service..."
-  (crontab -l ; echo "0 * * * * ($SERVICE_DIR/service.sh borg backup auto && borg prune) 2>&1 | logger -t cron_$SERVICE_NAME") | crontab -
+  (crontab -l ; echo "0 * * * * ($SERVICE_DIR/service.sh borg backup auto && borg prune && curl \"$BORG_SUCCESS_URL\") 2>&1 | logger -t cron_$SERVICE_NAME") | crontab -
   echo "[BORG] Following services will be backed up:"
   echo 
   sudo tail -n +4 /var/spool/cron/crontabs/conny
