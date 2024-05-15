@@ -19,7 +19,7 @@ declare -A borg_commands=(
 
   ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
   
-  ["autobackup-now"]=":Automatically backup and prune now"
+  ["autobackup-now"]="<logfile>:Automatically backup and prune now"
   ["autobackup-enable"]=":Enable automatic hourly backups"
   ["autobackup-disable"]=":Disable automatic hourly backups"
 )

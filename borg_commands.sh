@@ -160,7 +160,7 @@ borg_compact() {
 
 borg_prune() {
   echo "[BORG] Prune old backups..."
-  sudo -E borg prune --progress --keep-within 1d --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3
+  sudo -E borg prune --progress --stats --keep-within 1d --keep-hourly=48 --keep-daily=21 --keep-weekly=16 --keep-monthly=12 --keep-yearly=3
   echo "[BORG] Old backups pruned"
   # executing compact as well, as prune does not delete the data
   borg_compact
@@ -182,12 +182,12 @@ borg_pwgen() {
 
 borg_autobackup-enable() {
   if crontab -l | grep -q "$SERVICE_NAME/service.sh"; then
-    echo "[BORG] Reenabling automatic hourly backups for this service..."
+    echo "[BORG] Updating automatic hourly backups for this service..."
     borg_autobackup-disable true
   else
     echo "[BORG] Enabling automatic hourly backups for this service..."
   fi
-  (crontab -l; echo "0 * * * * $SERVICE_DIR/service.sh borg autobackup-now > $BORG_DIR/autobackup.log 2>&1") | crontab -
+  (crontab -l; echo "0 * * * * $SERVICE_DIR/service.sh borg autobackup-now $BORG_DIR/autobackup.log") | crontab -
   echo "[CRON] Added the following cronjob:"  
   echo "$(crontab -l | grep "$SERVICE_NAME/service.sh")"
 }
@@ -203,13 +203,17 @@ borg_autobackup-disable() {
 }
 
 borg_autobackup-now() {
-  echo "[CRON] Automatic backup started..."
+  if [ ! -z "$1" ]; then
+    $SERVICE_DIR/service.sh borg autobackup-now > $1 2>&1
+    exit $?
+  fi
+  echo "[CRON] $(date) Automatic backup started..."
   borg_backup auto
   borg_prune
   if [ ! -z "$BORG_SUCCESS_URL" ]; then
-    echo "[CRON] Sending uptime message..."
+    echo "[CRON] $(date) Sending uptime message..."
     curl "$BORG_SUCCESS_URL&$name"
   fi
-  echo  
-  echo "[CRON] Automatic backup finished"
+  echo 
+  echo "[CRON] $(date) Automatic backup finished"
 }
