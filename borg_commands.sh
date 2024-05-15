@@ -180,30 +180,36 @@ borg_pwgen() {
   echo "BORG_PASSPHRASE=$(openssl rand -base64 48)" >> "../$ENV_FILE"
 }
 
-borg_activate() {
-  echo "[BORG] Activating automatic hourly backups for this service..."
+borg_autobackup-enable() {
   if crontab -l | grep -q "$SERVICE_NAME/service.sh"; then
-    borg_deactivate
+    echo "[BORG] Reenabling automatic hourly backups for this service..."
+    borg_autobackup-disable true
+  else
+    echo "[BORG] Enabling automatic hourly backups for this service..."
   fi
-  (crontab -l; echo "0 * * * * $SERVICE_DIR/service.sh borg autobackup > $BORG_DIR/autobackup.log 2>&1") | crontab -
-  echo "[BORG] Added the following cronjob:"  
+  (crontab -l; echo "0 * * * * $SERVICE_DIR/service.sh borg autobackup-now > $BORG_DIR/autobackup.log 2>&1") | crontab -
+  echo "[CRON] Added the following cronjob:"  
   echo "$(crontab -l | grep "$SERVICE_NAME/service.sh")"
 }
 
-borg_deactivate() {
-  echo "[BORG] Deactivating automatic hourly backups for this service..."
+borg_autobackup-disable() {
+  if [ -z "$1" ] || [ "$1" == false ]; then
+    echo "[BORG] Disabling automatic hourly backups for this service..."
+  fi
   cronjob=$(crontab -l | grep "$SERVICE_NAME/service.sh")
   crontab -l | grep -v "$SERVICE_NAME/service.sh" | crontab -
-  echo "[BORG] Removed the following cronjob:"
+  echo "[CRON] Removed the following cronjob:"
   echo "$cronjob"
 }
 
-borg_autobackup() {
-  echo "[BORG] Automatic backup started..."
+borg_autobackup-now() {
+  echo "[CRON] Automatic backup started..."
   borg_backup auto
   borg_prune
-  echo "[BORG] Sending uptime message..."
-  curl "$BORG_SUCCESS_URL&$name"
+  if [ ! -z "$BORG_SUCCESS_URL" ]; then
+    echo "[CRON] Sending uptime message..."
+    curl "$BORG_SUCCESS_URL&$name"
+  fi
   echo  
-  echo "[BORG] Automatic backup finished"
+  echo "[CRON] Automatic backup finished"
 }

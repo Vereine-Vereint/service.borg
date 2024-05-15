@@ -19,9 +19,9 @@ declare -A borg_commands=(
 
   ["break-lock"]=":Break the repository lock !USE WITH CAUTION!"
   
-  ["autobackup"]=":Script that is running in the automatic backups"
-  ["activate"]=":Activates automatic hourly backups for this service"
-  ["deactivate"]=":Deactivates automatic hourly backups for this service"
+  ["autobackup-now"]=":Automatically backup and prune now"
+  ["autobackup-enable"]=":Enable automatic hourly backups"
+  ["autobackup-disable"]=":Disable automatic hourly backups"
 )
 
 add_global_subcommand "borg" "restore"
