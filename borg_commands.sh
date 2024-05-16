@@ -207,13 +207,35 @@ borg_autobackup-now() {
     $SERVICE_DIR/service.sh borg autobackup-now > $1 2>&1
     exit $?
   fi
+  tstart=$(date +%s)
   echo "[CRON] $(date) Automatic backup started..."
-  borg_backup auto
-  borg_prune
+  success="up"
+  borg_backup auto || success="backup"
+  if [ $success == "up" ]; then
+    borg_prune || success="prune"
+  fi
+  tend=$(date +%s)
+  tdiff=$((tend - tstart))
+  
   if [ ! -z "$BORG_SUCCESS_URL" ]; then
     echo "[CRON] $(date) Sending uptime message..."
-    curl "$BORG_SUCCESS_URL&$name"
+    status="up"
+    msg="$name"
+    if [ $success != "up" ]; then
+      status="down"
+      msg="$success failed"
+    fi
+    curl -X GET \
+      -G "$BORG_SUCCESS_URL" \
+      --data-urlencode "status=$status" \
+      --data-urlencode "msg=$msg" \
+      --data-urlencode "ping=$tdiff"
   fi
+
   echo 
-  echo "[CRON] $(date) Automatic backup finished"
+  echo "[CRON] $(date) Automatic backup finished, took $tdiff seconds"
+  if [ $success != "up" ]; then
+    echo "[CRON] $(date) Backup failed at $success"
+    exit 1
+  fi
 }
