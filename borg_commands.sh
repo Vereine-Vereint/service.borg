@@ -87,6 +87,12 @@ borg_init() {
     exit 0
   fi
 
+  # check if passphrase is set
+  if [ -z "$BORG_PASSPHRASE" ]; then
+    borg_pwgen
+    reload_env
+  fi
+
   echo "[BORG] Creating remote repository"
   sudo -E borg init --encryption=repokey-blake2 --make-parent-dirs >/dev/null
   echo "[BORG] Repository created"
